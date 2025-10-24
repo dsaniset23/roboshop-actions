@@ -22,7 +22,7 @@ jobs:
       - name: build the application
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 202533520978.dkr.ecr.us-east-1.amazonaws.com
-          docker build 202533520978.dkr.ecr.us-east-1.amazonaws.com/roboshop-${{ inputs.componentName }}:${{ github.sha }}
+          docker build -t 202533520978.dkr.ecr.us-east-1.amazonaws.com/roboshop-${{ inputs.componentName }}:${{ github.sha }} .
           docker push 202533520978.dkr.ecr.us-east-1.amazonaws.com/roboshop-${{ inputs.componentName }}:${{ github.sha }}
 
   deploy:
