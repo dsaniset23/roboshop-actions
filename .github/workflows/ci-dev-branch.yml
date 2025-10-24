@@ -1,0 +1,24 @@
+name: CI dev branch pipeline
+on:
+  workflow_call:
+    inputs:
+      componentName:
+        required: true
+        type: string
+jobs:
+  UNIT-TESTS:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unit tests
+        run: |
+          echo unit tests
+
+  build:
+    runs-on: self-hosted
+    needs: UNIT-TESTS
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unit tests
+        run: |
+          echo unit tests

@@ -1,0 +1,84 @@
+name: roboshop-reusable-actions
+on:
+  workflow_call:
+    inputs:
+      componentName:
+        required: true
+        type: string
+jobs:
+  UNIT-TESTS:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: test the application
+        run: |
+          echo npm install
+
+  build:
+    runs-on: self-hosted
+    needs: UNIT-TESTS
+    steps:
+      - uses: actions/checkout@v4
+      - name: build the application
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 202533520978.dkr.ecr.us-east-1.amazonaws.com
+          docker build 202533520978.dkr.ecr.us-east-1.amazonaws.com/roboshop-${{ inputs.componentName }}:${{ github.sha }}
+          docker push 202533520978.dkr.ecr.us-east-1.amazonaws.com/roboshop-${{ inputs.componentName }}:${{ github.sha }}
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: build the application
+        run: |
+          echo npm install
+
+  DEV:
+    runs-on: self-hosted
+    needs: deploy
+    environment: DEV
+    steps:
+      - uses: actions/checkout@v4
+      - name: build the application
+        run: |
+          echo npm install
+
+  QA:
+    runs-on: self-hosted
+    needs: DEV
+    environment: QA
+    steps:
+      - uses: actions/checkout@v4
+      - name: runs in QA env
+        run: |
+          echo run in QA env
+
+  integration-testing:
+    needs: QA
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: do integration testing
+        run: |
+          echo perform integration testing
+
+  UAT:
+    runs-on: self-hosted
+    needs: QA
+    environment: UAT
+    steps:
+      - uses: actions/checkout@v4
+      - name: deploy in UAT
+        run: |
+          echo deploy in UAT
+
+  prod:
+    runs-on: self-hosted
+    needs: UAT
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: deploy in prod
+        run: |
+          echo deploy in prod
