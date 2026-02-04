@@ -40,14 +40,18 @@ jobs:
     environment: DEV
     steps:
       - uses: actions/checkout@v4
-      - name: build the application
+      - name: set kube context
         run: |
-          echo npm install
+          kubectl config set-context --current --namespace=argocd
 
-      - name: deploy the application
+      - name: login argocd
         run: |
-          kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+          url=$(kubectl get svc argocd-server -n argocd -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+          argocd_password=$(kubctl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+          argocd login $url --insecure --username admin --password $argocd_password
 
+      - name: deploy application
+        run: argocd app create ${{ inputs.componentName }} --repo https://github.com/dsaniset23/roboshop-helm.git --path . --dest-server https://kubernetes.default.svc --dest-namespace default
   QA:
     runs-on: self-hosted
     needs: DEV
