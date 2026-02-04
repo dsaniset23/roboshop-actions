@@ -51,7 +51,7 @@ jobs:
           argocd login $url --insecure --username admin --password $argocd_password
 
       - name: deploy application
-        run: argocd app create ${{ inputs.componentName }} --repo https://github.com/dsaniset23/roboshop-helm.git --path . --dest-server https://kubernetes.default.svc --dest-namespace default --set COMMIT_ID=${{ github.sha }}
+        run: argocd app create ${{ inputs.componentName }} --repo https://github.com/dsaniset23/roboshop-helm.git --path . --dest-server https://kubernetes.default.svc --dest-namespace default --helm-set appVersion=${{ github.sha }}
 
   QA:
     runs-on: self-hosted
