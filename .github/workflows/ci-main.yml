@@ -47,11 +47,12 @@ jobs:
       - name: login argocd
         run: |
           url=$(kubectl get svc argocd-server -n argocd -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
-          argocd_password=$(kubctl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+          argocd_password=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
           argocd login $url --insecure --username admin --password $argocd_password
 
       - name: deploy application
         run: argocd app create ${{ inputs.componentName }} --repo https://github.com/dsaniset23/roboshop-helm.git --path . --dest-server https://kubernetes.default.svc --dest-namespace default
+
   QA:
     runs-on: self-hosted
     needs: DEV
